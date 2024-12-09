@@ -1,5 +1,4 @@
-from flask import abort , request
-from werkzeug.exceptions import HTTPException
+from flask import abort, request
 from .rules import RuleEngine
 from .logging import WAFLogger
 from .config import WAFConfig
@@ -8,6 +7,7 @@ from .session_protection import SessionProtection
 from .content_security import ContentSecurityPolicy
 from .threat_intelligence import ThreatIntelligence
 from .anomaly_detection import AnomalyDetection
+
 
 class WAF:
     def __init__(self, app=None, config_file=None):
@@ -22,7 +22,7 @@ class WAF:
         self.csp = ContentSecurityPolicy()
         self.threat_intel = ThreatIntelligence()
         self.anomaly_detection = AnomalyDetection()
-        
+
         if app is not None:
             self.init_app(app)
 
@@ -37,6 +37,7 @@ class WAF:
         self._check_query_params()
         self._check_headers()
         self._check_rate_limit()
+        self._check_request_against_rules()
         # Advanced checks
         self._check_threat_intelligence()
         self._check_anomalies()
@@ -46,6 +47,7 @@ class WAF:
         if int(request.headers.get('Content-Length', 0)) > self.config.max_request_size:
             self.logger.log_blocked_request(request, "Payload too large")
             abort(413, description="Payload too large")
+
     def _check_url_length(self):
         if len(request.url) > self.config.max_url_length:
             self.logger.log_blocked_request(request, "URI too long")
@@ -71,6 +73,12 @@ class WAF:
             self.logger.log_blocked_request(request, "Rate limit exceeded")
             abort(429, description="Too many requests")
 
+    def _check_request_against_rules(self):
+        violations = self.rule_engine.check_request(request)
+        if violations:
+            self.logger.log_blocked_request(request, f"Rule violation: {violations}")
+            abort(403, description=f"Rule violation: {violations}")
+
     def _check_threat_intelligence(self):
         if self.threat_intel.is_malicious(request):
             self.logger.log_blocked_request(request, "Threat intelligence match")
@@ -93,4 +101,3 @@ class WAF:
         response.headers['Content-Security-Policy'] = csp_header
 
         return response
-

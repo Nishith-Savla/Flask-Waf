@@ -19,7 +19,6 @@ class RuleEngine:
             Rule('Path Traversal', r'\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e/', ['params', 'path']),
             Rule('Command Injection', r';\s*(\w+\s+)*(\w+)|\||\$\(|\`', ['params', 'form', 'json']),
             Rule('File Inclusion', r'\.\./|\.\.\\|file://', ['params', 'path']),
-            Rule('HTTP Response Splitting', r'\r|\n', ['headers']),
         ]
 
     def check_request(self, req):
