@@ -9,4 +9,13 @@ from .threat_intelligence import ThreatIntelligence
 from .anomaly_detection import AnomalyDetection
 
 
+#new addition
+from flask import Flask
+from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app) 
+
+from .waf import WAF
+
+waf = WAF(app)

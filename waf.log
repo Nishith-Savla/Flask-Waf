@@ -1,0 +1,1 @@
+2025-03-11 20:41:30,340 - flask_waf - WARNING - Blocked Request: {"timestamp": "2025-03-11T20:41:30.340551", "method": "GET", "url": "http://127.0.0.1:5000/api/requests", "remote_addr": "127.0.0.1", "reason": "Anomalous behavior detected"}
